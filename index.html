@@ -89,7 +89,7 @@
 
     <script>
     // Replace with your published Google Sheets CSV URL
-    const sheetUrl = "https://https://docs.google.com/spreadsheets/d/1DeXaCjT3AFwmR9AZfjy0JiSWwYDwMhpfFyUGC3sNUfU/edit?gid=0#gid=0";
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4EVsy5DvH079ExNqMKimEr_sZujqk6sY8_82x0Z7JVv_P7yrcMPxL1naU1WZybsfRHjUBJyQbiw3y/pub?output=csv";
 
     // Fetch and display jobs
     fetch(sheetUrl)
@@ -125,7 +125,7 @@
                     
                     html += `
                         <div class="job">
-                            ${jobType} ${row[0]} | ${row[1]} | ${row[2]} | <a href="${applyLink}" target="_blank">Apply</a>
+                            ${jobType} ${row[0]} | ${row[1]} | ${row[2]} | <a href="${applyLink}" target="_blank" rel="noopener">Apply</a>
                             <div class="job-meta">Posted ${formatDate(row[4])}</div>
                         </div>
                     `;
