@@ -88,86 +88,93 @@
     </footer>
 
     <script>
-        // Replace with your published Google Sheets CSV URL
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4EVsy5DvH079ExNqMKimEr_sZujqk6sY8_82x0Z7JVv_P7yrcMPxL1naU1WZybsfRHjUBJyQbiw3y/pub?gid=0&single=true&output=csv";
+    // Replace with your published Google Sheets CSV URL
+    const sheetUrl = "https://https://docs.google.com/spreadsheets/d/1DeXaCjT3AFwmR9AZfjy0JiSWwYDwMhpfFyUGC3sNUfU/edit?gid=0#gid=0";
 
-        // Fetch and display jobs
-        fetch(sheetUrl)
-            .then(response => response.text())
-            .then(data => {
-                const jobs = parseCSV(data);
-                const categories = {};
-                
-                // Group jobs by category
-                jobs.slice(1).forEach(row => {
-                    if (row.length >= 7) { // Ensure row has all columns
-                        const category = row[5] || "Other";
-                        if (!categories[category]) {
-                            categories[category] = [];
-                        }
-                        categories[category].push(row);
+    // Fetch and display jobs
+    fetch(sheetUrl)
+        .then(response => response.text())
+        .then(data => {
+            const jobs = parseCSV(data);
+            const categories = {};
+            
+            // Group jobs by category
+            jobs.slice(1).forEach(row => {
+                if (row.length >= 7) { // Ensure row has all columns
+                    const category = row[5] || "Other";
+                    if (!categories[category]) {
+                        categories[category] = [];
                     }
-                });
-
-                // Generate HTML for each category
-                let html = '';
-                Object.keys(categories).sort().forEach(category => {
-                    html += `<div class="category">${category}</div>`;
-                    
-                    categories[category].forEach(row => {
-                        const jobType = row[6] ? `<span class="job-type">${row[6]}</span>` : '';
-                        html += `
-                            <div class="job">
-                                ${jobType} ${row[0]} | ${row[1]} | ${row[2]} | <a href="${row[3]}">Apply</a>
-                                <div class="job-meta">Posted ${formatDate(row[4])}</div>
-                            </div>
-                        `;
-                    });
-                });
-                
-                document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
-            })
-            .catch(error => {
-                console.error("Error loading jobs:", error);
-                document.getElementById('job-list').innerHTML = "<p>⚠️ Jobs failed to load. Refresh to try again.</p>";
-            });
-
-        // Parse CSV into array (handles quoted values)
-        function parseCSV(csvData) {
-            const rows = csvData.split(/\r?\n/);
-            return rows.map(row => {
-                const values = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let char of row) {
-                    if (char === '"' && !inQuotes) {
-                        inQuotes = true;
-                    } else if (char === '"' && inQuotes) {
-                        inQuotes = false;
-                    } else if (char === ',' && !inQuotes) {
-                        values.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
+                    categories[category].push(row);
                 }
-                values.push(current.trim());
-                return values;
             });
-        }
 
-        // Format date (e.g., "2023-10-01" → "Oct 1, 2023")
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        }
+            // Generate HTML for each category
+            let html = '';
+            Object.keys(categories).sort().forEach(category => {
+                html += `<div class="category">${category}</div>`;
+                
+                categories[category].forEach(row => {
+                    const jobType = row[6] ? `<span class="job-type">${row[6]}</span>` : '';
+                    
+                    // FIX: Force absolute URLs
+                    let applyLink = row[3].trim();
+                    if (!applyLink.startsWith('http')) {
+                        applyLink = 'https://' + applyLink;
+                    }
+                    
+                    html += `
+                        <div class="job">
+                            ${jobType} ${row[0]} | ${row[1]} | ${row[2]} | <a href="${applyLink}" target="_blank">Apply</a>
+                            <div class="job-meta">Posted ${formatDate(row[4])}</div>
+                        </div>
+                    `;
+                });
+            });
+            
+            document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
+        })
+        .catch(error => {
+            console.error("Error loading jobs:", error);
+            document.getElementById('job-list').innerHTML = "<p>⚠️ Jobs failed to load. Refresh to try again.</p>";
+        });
 
-        // Handle "Post Job" button
-        function postJob() {
-            // Replace with your PayPal/Stripe link
-            window.open("https://paypal.me/yourusername/1.00", "_blank");
-        }
-    </script>
+    // Parse CSV into array (handles quoted values)
+    function parseCSV(csvData) {
+        const rows = csvData.split(/\r?\n/);
+        return rows.map(row => {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let char of row) {
+                if (char === '"' && !inQuotes) {
+                    inQuotes = true;
+                } else if (char === '"' && inQuotes) {
+                    inQuotes = false;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            return values;
+        });
+    }
+
+    // Format date (e.g., "2023-10-01" → "Oct 1, 2023")
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Handle "Post Job" button
+    function postJob() {
+        // Replace with your PayPal/Stripe link
+        window.open("https://paypal.me/yourusername/1.00", "_blank");
+    }
+</script>
 </body>
 </html>
