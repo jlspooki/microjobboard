@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MicroJobs.io | $1 Job Board</title>
+    <title>MicroJobs.io | $1 Job Board (All Roles)</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -25,12 +25,26 @@
             color: #666;
             margin-bottom: 20px;
         }
+        .category {
+            margin-top: 30px;
+            font-weight: bold;
+            color: #4CAF50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
         .job {
             background: white;
             padding: 15px;
             margin-bottom: 10px;
             border-left: 3px solid #4CAF50;
             word-break: break-all;
+        }
+        .job-type {
+            font-size: 0.7rem;
+            background: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-right: 5px;
         }
         .job-meta {
             font-size: 0.8rem;
@@ -59,25 +73,11 @@
 <body>
     <header>
         <h1>MicroJobs.io</h1>
-        <div class="subtitle">The world's smallest job board · $1 per listing</div>
+        <div class="subtitle">$1 job board · Full-time, freelance, and contract roles</div>
     </header>
 
     <div id="job-list">
-        <!-- Sample jobs - EDIT THESE -->
-        <div class="job">
-            🚀 Need React developer | $50/hr | <a href="mailto:hire@example.com">Apply</a>
-            <div class="job-meta">Posted 2 days ago · #dev</div>
-        </div>
-        
-        <div class="job">
-            🎨 Logo design needed | $100 flat | <a href="https://forms.gle/abc123">Apply</a>
-            <div class="job-meta">Posted 1 week ago · #design</div>
-        </div>
-        
-        <div class="job">
-            📝 Blog writer for tech | $0.10/word | <a href="mailto:editor@example.com">Apply</a>
-            <div class="job-meta">Posted 3 days ago · #writing</div>
-        </div>
+        <!-- Jobs auto-populate here by category -->
     </div>
 
     <button class="post-job" onclick="postJob()">POST A JOB ($1)</button>
@@ -88,17 +88,85 @@
     </footer>
 
     <script>
+        // Replace with your published Google Sheets CSV URL
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4EVsy5DvH079ExNqMKimEr_sZujqk6sY8_82x0Z7JVv_P7yrcMPxL1naU1WZybsfRHjUBJyQbiw3y/pub?gid=0&single=true&output=csv";
+
+        // Fetch and display jobs
+        fetch(sheetUrl)
+            .then(response => response.text())
+            .then(data => {
+                const jobs = parseCSV(data);
+                const categories = {};
+                
+                // Group jobs by category
+                jobs.slice(1).forEach(row => {
+                    if (row.length >= 7) { // Ensure row has all columns
+                        const category = row[5] || "Other";
+                        if (!categories[category]) {
+                            categories[category] = [];
+                        }
+                        categories[category].push(row);
+                    }
+                });
+
+                // Generate HTML for each category
+                let html = '';
+                Object.keys(categories).sort().forEach(category => {
+                    html += `<div class="category">${category}</div>`;
+                    
+                    categories[category].forEach(row => {
+                        const jobType = row[6] ? `<span class="job-type">${row[6]}</span>` : '';
+                        html += `
+                            <div class="job">
+                                ${jobType} ${row[0]} | ${row[1]} | ${row[2]} | <a href="${row[3]}">Apply</a>
+                                <div class="job-meta">Posted ${formatDate(row[4])}</div>
+                            </div>
+                        `;
+                    });
+                });
+                
+                document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
+            })
+            .catch(error => {
+                console.error("Error loading jobs:", error);
+                document.getElementById('job-list').innerHTML = "<p>⚠️ Jobs failed to load. Refresh to try again.</p>";
+            });
+
+        // Parse CSV into array (handles quoted values)
+        function parseCSV(csvData) {
+            const rows = csvData.split(/\r?\n/);
+            return rows.map(row => {
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of row) {
+                    if (char === '"' && !inQuotes) {
+                        inQuotes = true;
+                    } else if (char === '"' && inQuotes) {
+                        inQuotes = false;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim());
+                return values;
+            });
+        }
+
+        // Format date (e.g., "2023-10-01" → "Oct 1, 2023")
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Handle "Post Job" button
         function postJob() {
-            // In a real version, this would link to payment processing
-            // For now, we'll use a simple mailto: as a placeholder
-            const email = "your-email@example.com"; // CHANGE THIS
-            const subject = "New MicroJob Posting";
-            const body = "I want to post this job:\n\n[Job Title] | [Payment] | [Apply Link]\n\n[Additional Notes]";
-            
-            window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            
-            // Alternative: Link directly to your PayPal $1 button
-            // window.open("https://paypal.com/your-$1-link");
+            // Replace with your PayPal/Stripe link
+            window.open("https://paypal.me/yourusername/1.00", "_blank");
         }
     </script>
 </body>
