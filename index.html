@@ -20,6 +20,7 @@
         h1 {
             font-size: 1.8rem;
             margin-bottom: 5px;
+            color: #2E7D32;
         }
         .subtitle {
             color: #666;
@@ -28,9 +29,16 @@
         .job {
             background: white;
             padding: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-left: 3px solid #4CAF50;
-            word-break: break-word; /* Changed from break-all to break-word */
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            word-break: break-word;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .job:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .job-type {
             font-size: 0.7rem;
@@ -42,43 +50,63 @@
         .job-meta {
             font-size: 0.8rem;
             color: #666;
-            margin-top: 5px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
         }
         .job-title {
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
         }
         .job-company {
             font-style: italic;
             color: #555;
+            margin-bottom: 5px;
         }
         .job-salary {
-            color: #4CAF50;
+            color: #2E7D32;
             font-weight: bold;
+            margin-left: 5px;
+        }
+        .job-details {
+            margin: 8px 0;
+            line-height: 1.4;
         }
         .post-job {
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 15px;
             font-size: 1rem;
             cursor: pointer;
-            margin: 20px 0;
+            margin: 25px 0;
             display: block;
             width: 100%;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .post-job:hover {
+            background-color: #3d8b40;
         }
         footer {
             text-align: center;
             margin-top: 40px;
             color: #999;
             font-size: 0.8rem;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
         }
         /* Filter controls */
         .filters {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .filter-group {
             flex: 1;
@@ -96,6 +124,7 @@
             border: 1px solid #ddd;
             background: white;
             font-family: 'Courier New', monospace;
+            border-radius: 3px;
         }
         .job-type-filter {
             display: flex;
@@ -109,6 +138,10 @@
             cursor: pointer;
             font-family: 'Courier New', monospace;
             font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .job-type-filter button:hover {
+            background: #f0f0f0;
         }
         .job-type-filter button.active {
             background: #4CAF50;
@@ -119,17 +152,51 @@
             display: none;
         }
         /* New style for apply links */
-        .job a {
+        .job-apply {
             background: #f0f0f0;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 3px;
             text-decoration: none;
             color: #4CAF50;
             font-size: 0.8rem;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
         }
-        .job a:hover {
+        .job-apply:hover {
             background: #e0e0e0;
+            color: #3d8b40;
+        }
+        .job-apply::before {
+            content: "→";
+            margin-right: 4px;
+            font-size: 0.9rem;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .filters {
+                flex-direction: column;
+            }
+            .job-type-filter button {
+                padding: 6px;
+                font-size: 0.7rem;
+            }
+        }
+        /* Loading animation */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
         }
     </style>
 </head>
@@ -167,7 +234,7 @@
     </div>
 
     <div id="job-list">
-        <!-- Jobs auto-populate here -->
+        <div class="loading">Loading jobs</div>
     </div>
 
     <button class="post-job" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfkvAWoYz5z0s1tFYr-_ps0RoeqEmVAXTygM0grypKyNbeRRw/viewform?usp=sharing&ouid=104569870959259447263', '_blank')">POST A JOB ($1)</button>
@@ -210,105 +277,109 @@
     }
 
     // Fetch and display jobs
-    fetch(sheetUrl)
-        .then(response => response.text())
-        .then(data => {
-            const jobs = parseCSV(data);
-            const categories = new Set();
-            const locations = new Set();
-            
-            // Generate HTML for jobs and collect categories/locations
-            let html = '';
-            jobs.slice(1).forEach(row => {
-                if (row.length >= 8) { // Updated to check for 8 columns (added company)
-                    const title = row[0] || "No title";
-                    const company = row[1] || ""; // New company field
-                    const location = row[2] || "Remote";
-                    const salary = row[3] || ""; // Updated salary position
-                    const applyLink = row[4] || "#";
-                    const date = row[5] || new Date().toISOString();
-                    const category = row[6] || "Other";
-                    const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
-                    
-                    // Add to sets for filters
-                    categories.add(category);
-                    locations.add(location);
-                    
-                    // Force absolute URLs
-                    let cleanApplyLink = applyLink.trim();
-                    if (cleanApplyLink && !cleanApplyLink.startsWith('http')) {
-                        cleanApplyLink = 'https://' + cleanApplyLink;
-                    }
-                    
-                    html += `
-                        <div class="job" 
-                             data-category="${category.replace(/ /g, '-').toLowerCase()}" 
-                             data-location="${location.replace(/ /g, '-').toLowerCase()}" 
-                             data-job-type="${jobType}">
-                            <div class="job-title">${title}</div>
-                            ${company ? `<div class="job-company">${company}</div>` : ''}
-                            <div>
-                                <span class="job-type">${jobType.replace('-', ' ')}</span> 
-                                ${location} 
-                                ${salary ? `| <span class="job-salary">${salary}</span>` : ''}
-                                | <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}">
-                                    Apply (${extractDomain(cleanApplyLink)})
-                                </a>
+    function loadJobs() {
+        fetch(sheetUrl)
+            .then(response => response.text())
+            .then(data => {
+                const jobs = parseCSV(data);
+                const categories = new Set();
+                const locations = new Set();
+                
+                // Generate HTML for jobs and collect categories/locations
+                let html = '';
+                jobs.slice(1).forEach(row => {
+                    if (row.length >= 8) { // Updated to check for 8 columns (added company)
+                        const title = row[0] || "No title";
+                        const company = row[1] || ""; // New company field
+                        const location = row[2] || "Remote";
+                        const salary = row[3] || ""; // Updated salary position
+                        const applyLink = row[4] || "#";
+                        const date = row[5] || new Date().toISOString();
+                        const category = row[6] || "Other";
+                        const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
+                        
+                        // Add to sets for filters
+                        categories.add(category);
+                        locations.add(location);
+                        
+                        // Force absolute URLs
+                        let cleanApplyLink = applyLink.trim();
+                        if (cleanApplyLink && !cleanApplyLink.startsWith('http')) {
+                            cleanApplyLink = 'https://' + cleanApplyLink;
+                        }
+                        
+                        html += `
+                            <div class="job" 
+                                 data-category="${category.replace(/ /g, '-').toLowerCase()}" 
+                                 data-location="${location.replace(/ /g, '-').toLowerCase()}" 
+                                 data-job-type="${jobType}">
+                                <div class="job-title">${title}</div>
+                                ${company ? `<div class="job-company">${company}</div>` : ''}
+                                <div class="job-details">
+                                    <span class="job-type">${jobType.replace('-', ' ')}</span> 
+                                    ${location} 
+                                    ${salary ? `<span class="job-salary">${salary}</span>` : ''}
+                                </div>
+                                <div class="job-meta">
+                                    <span>Posted ${formatDate(date)} · ${category}</span>
+                                    <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}" class="job-apply">
+                                        Apply (${extractDomain(cleanApplyLink)})
+                                    </a>
+                                </div>
                             </div>
-                            <div class="job-meta">Posted ${formatDate(date)} · ${category}</div>
-                        </div>
-                    `;
-                }
-            });
-            
-            document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
+                        `;
+                    }
+                });
+                
+                document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
 
-            // Populate category filter
-            const categorySelect = document.getElementById('category-filter');
-            Array.from(categories).sort().forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.replace(/ /g, '-').toLowerCase();
-                option.textContent = category;
-                categorySelect.appendChild(option);
-            });
+                // Populate category filter
+                const categorySelect = document.getElementById('category-filter');
+                Array.from(categories).sort().forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.replace(/ /g, '-').toLowerCase();
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
 
-            // Populate location filter
-            const locationSelect = document.getElementById('location-filter');
-            Array.from(locations).sort().forEach(location => {
-                const option = document.createElement('option');
-                option.value = location.replace(/ /g, '-').toLowerCase();
-                option.textContent = location;
-                locationSelect.appendChild(option);
-            });
+                // Populate location filter
+                const locationSelect = document.getElementById('location-filter');
+                Array.from(locations).sort().forEach(location => {
+                    const option = document.createElement('option');
+                    option.value = location.replace(/ /g, '-').toLowerCase();
+                    option.textContent = location;
+                    locationSelect.appendChild(option);
+                });
 
-            // Add event listeners for filters
-            document.getElementById('category-filter').addEventListener('change', (e) => {
-                currentCategory = e.target.value;
-                filterJobs();
-            });
-
-            document.getElementById('location-filter').addEventListener('change', (e) => {
-                currentLocation = e.target.value;
-                filterJobs();
-            });
-
-            document.querySelectorAll('.job-type-filter button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    currentJobType = e.target.dataset.type;
-                    document.querySelectorAll('.job-type-filter button').forEach(btn => {
-                        btn.classList.toggle('active', btn === e.target);
-                    });
+                // Add event listeners for filters
+                document.getElementById('category-filter').addEventListener('change', (e) => {
+                    currentCategory = e.target.value;
                     filterJobs();
                 });
-            });
 
-            // Initial filter
-            filterJobs();
-        })
-        .catch(error => {
-            console.error("Error loading jobs:", error);
-            document.getElementById('job-list').innerHTML = "<p>⚠️ Jobs failed to load. Refresh to try again.</p>";
-        });
+                document.getElementById('location-filter').addEventListener('change', (e) => {
+                    currentLocation = e.target.value;
+                    filterJobs();
+                });
+
+                document.querySelectorAll('.job-type-filter button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        currentJobType = e.target.dataset.type;
+                        document.querySelectorAll('.job-type-filter button').forEach(btn => {
+                            btn.classList.toggle('active', btn === e.target);
+                        });
+                        filterJobs();
+                    });
+                });
+
+                // Initial filter
+                filterJobs();
+            })
+            .catch(error => {
+                console.error("Error loading jobs:", error);
+                document.getElementById('job-list').innerHTML = "<p>⚠️ Jobs failed to load. Refresh to try again.</p>";
+            });
+    }
 
     // Filter jobs based on current selections
     function filterJobs() {
@@ -354,6 +425,9 @@
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', loadJobs);
     </script>
 </body>
 </html>
