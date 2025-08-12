@@ -6,13 +6,16 @@
     <title>MicroJobs.io | $1 Job Board (All Roles)</title>
     <style>
         body {
-            font-family: 'Courier New', monospace;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background: #f7f7f7;
-            color: #333;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.5;
         }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -20,61 +23,67 @@
         h1 {
             font-size: 1.8rem;
             margin-bottom: 5px;
-            color: #2E7D32;
+            color: #2563eb;
+            font-weight: 600;
         }
         .subtitle {
-            color: #666;
+            color: #64748b;
             margin-bottom: 20px;
+            font-weight: 500;
         }
         .job {
             background: white;
-            padding: 15px;
+            padding: 18px;
             margin-bottom: 15px;
-            border-left: 3px solid #4CAF50;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             word-break: break-word;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s ease;
         }
         .job:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left-color: #2563eb;
         }
         .job-type {
             font-size: 0.7rem;
-            background: #eee;
-            padding: 2px 5px;
-            border-radius: 3px;
-            margin-right: 5px;
+            background: #e0e7ff;
+            color: #2563eb;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-right: 6px;
+            font-weight: 500;
         }
         .job-meta {
             font-size: 0.8rem;
-            color: #666;
+            color: #64748b;
             margin-top: 8px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .job-title {
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 5px;
             font-size: 1.1rem;
+            color: #1e293b;
         }
         .job-company {
-            font-style: italic;
-            color: #555;
+            color: #475569;
             margin-bottom: 5px;
+            font-weight: 500;
         }
         .job-salary {
-            color: #2E7D32;
-            font-weight: bold;
+            color: #10b981;
+            font-weight: 600;
             margin-left: 5px;
         }
         .job-details {
             margin: 8px 0;
-            line-height: 1.4;
         }
         .post-job {
-            background: #4CAF50;
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 12px 15px;
@@ -83,19 +92,20 @@
             margin: 25px 0;
             display: block;
             width: 100%;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-weight: 500;
         }
         .post-job:hover {
-            background-color: #3d8b40;
+            background-color: #2563eb;
         }
         footer {
             text-align: center;
             margin-top: 40px;
-            color: #999;
+            color: #94a3b8;
             font-size: 0.8rem;
             padding-top: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e2e8f0;
         }
         /* Filter controls */
         .filters {
@@ -105,8 +115,8 @@
             margin-bottom: 25px;
             background: white;
             padding: 15px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .filter-group {
             flex: 1;
@@ -116,15 +126,17 @@
             display: block;
             margin-bottom: 5px;
             font-size: 0.8rem;
-            color: #666;
+            color: #475569;
+            font-weight: 500;
         }
         .filter-group select {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #e2e8f0;
             background: white;
-            font-family: 'Courier New', monospace;
-            border-radius: 3px;
+            font-family: 'Inter', sans-serif;
+            border-radius: 4px;
+            color: #334155;
         }
         .job-type-filter {
             display: flex;
@@ -133,44 +145,48 @@
         .job-type-filter button {
             flex: 1;
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #e2e8f0;
             background: white;
             cursor: pointer;
-            font-family: 'Courier New', monospace;
+            font-family: 'Inter', sans-serif;
             font-size: 0.8rem;
+            font-weight: 500;
             transition: all 0.2s;
+            color: #475569;
+            border-radius: 4px;
         }
         .job-type-filter button:hover {
-            background: #f0f0f0;
+            background: #f1f5f9;
         }
         .job-type-filter button.active {
-            background: #4CAF50;
+            background: #3b82f6;
             color: white;
-            border-color: #4CAF50;
+            border-color: #3b82f6;
         }
         .job.hidden {
             display: none;
         }
         /* New style for apply links */
         .job-apply {
-            background: #f0f0f0;
-            padding: 3px 8px;
-            border-radius: 3px;
+            background: #e0e7ff;
+            padding: 4px 10px;
+            border-radius: 4px;
             text-decoration: none;
-            color: #4CAF50;
+            color: #2563eb;
             font-size: 0.8rem;
             white-space: nowrap;
             display: inline-flex;
             align-items: center;
             transition: all 0.2s;
+            font-weight: 500;
         }
         .job-apply:hover {
-            background: #e0e0e0;
-            color: #3d8b40;
+            background: #dbeafe;
+            color: #1d4ed8;
         }
         .job-apply::before {
             content: "→";
-            margin-right: 4px;
+            margin-right: 5px;
             font-size: 0.9rem;
         }
         /* Responsive adjustments */
@@ -187,7 +203,7 @@
         .loading {
             text-align: center;
             padding: 20px;
-            color: #666;
+            color: #64748b;
         }
         .loading::after {
             content: "...";
@@ -240,8 +256,8 @@
     <button class="post-job" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfkvAWoYz5z0s1tFYr-_ps0RoeqEmVAXTygM0grypKyNbeRRw/viewform?usp=sharing&ouid=104569870959259447263', '_blank')">POST A JOB ($1)</button>
 
     <footer>
-        <p>Listings expire after 30 days · <a href="#">Terms</a></p>
-        <p>Want featured placement? <a href="#">Pay $5 to pin your job</a></p>
+        <p>Listings expire after 30 days · <a href="#" style="color: #3b82f6;">Terms</a></p>
+        <p>Want featured placement? <a href="#" style="color: #3b82f6;">Pay $5 to pin your job</a></p>
     </footer>
 
     <script>
