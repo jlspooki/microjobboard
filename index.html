@@ -10,8 +10,8 @@
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
-            background: #f8fafc;
-            color: #1e293b;
+            background: #0f0f15;
+            color: #e0e0ff;
             line-height: 1.5;
         }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
@@ -23,41 +23,43 @@
         h1 {
             font-size: 1.8rem;
             margin-bottom: 5px;
-            color: #2563eb;
-            font-weight: 600;
+            color: #ff2a6d;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(255, 42, 109, 0.6);
         }
         .subtitle {
-            color: #64748b;
+            color: #a0a0ff;
             margin-bottom: 20px;
             font-weight: 500;
         }
         .job {
-            background: white;
+            background: #1a1a25;
             padding: 18px;
             margin-bottom: 15px;
-            border-left: 4px solid #3b82f6;
+            border-left: 4px solid #ff2a6d;
             border-radius: 6px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             word-break: break-word;
             transition: all 0.2s ease;
         }
         .job:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left-color: #2563eb;
+            box-shadow: 0 0 15px rgba(255, 42, 109, 0.3);
+            border-left-color: #05d9e8;
         }
         .job-type {
-            font-size: 0.7rem;
-            background: #e0e7ff;
-            color: #2563eb;
-            padding: 3px 6px;
+            font-size: 0.8rem;
+            background: rgba(5, 217, 232, 0.15);
+            color: #05d9e8;
+            padding: 4px 8px;
             border-radius: 4px;
             margin-right: 6px;
-            font-weight: 500;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(5, 217, 232, 0.5);
         }
         .job-meta {
             font-size: 0.8rem;
-            color: #64748b;
+            color: #a0a0ff;
             margin-top: 8px;
             display: flex;
             justify-content: space-between;
@@ -67,23 +69,25 @@
             font-weight: 600;
             margin-bottom: 5px;
             font-size: 1.1rem;
-            color: #1e293b;
+            color: #ffffff;
         }
         .job-company {
-            color: #475569;
+            color: #d1b3ff;
             margin-bottom: 5px;
             font-weight: 500;
         }
         .job-salary {
-            color: #10b981;
+            color: #ffcc00;
             font-weight: 600;
             margin-left: 5px;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.4);
         }
         .job-details {
             margin: 8px 0;
+            font-size: 0.8rem;
         }
         .post-job {
-            background: #3b82f6;
+            background: #ff2a6d;
             color: white;
             border: none;
             padding: 12px 15px;
@@ -93,19 +97,23 @@
             display: block;
             width: 100%;
             border-radius: 6px;
-            transition: background-color 0.2s;
-            font-weight: 500;
+            transition: all 0.2s;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(255, 42, 109, 0.5);
+            box-shadow: 0 0 10px rgba(255, 42, 109, 0.4);
         }
         .post-job:hover {
-            background-color: #2563eb;
+            background: #ff0a55;
+            box-shadow: 0 0 15px rgba(255, 42, 109, 0.6);
+            transform: translateY(-1px);
         }
         footer {
             text-align: center;
             margin-top: 40px;
-            color: #94a3b8;
+            color: #7070a0;
             font-size: 0.8rem;
             padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #252535;
         }
         /* Filter controls */
         .filters {
@@ -113,10 +121,10 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 25px;
-            background: white;
+            background: #1a1a25;
             padding: 15px;
             border-radius: 6px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         .filter-group {
             flex: 1;
@@ -126,17 +134,17 @@
             display: block;
             margin-bottom: 5px;
             font-size: 0.8rem;
-            color: #475569;
+            color: #a0a0ff;
             font-weight: 500;
         }
         .filter-group select {
             width: 100%;
             padding: 8px;
-            border: 1px solid #e2e8f0;
-            background: white;
+            border: 1px solid #252535;
+            background: #252535;
             font-family: 'Inter', sans-serif;
             border-radius: 4px;
-            color: #334155;
+            color: #e0e0ff;
         }
         .job-type-filter {
             display: flex;
@@ -145,44 +153,48 @@
         .job-type-filter button {
             flex: 1;
             padding: 8px;
-            border: 1px solid #e2e8f0;
-            background: white;
+            border: 1px solid #252535;
+            background: #252535;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             font-size: 0.8rem;
             font-weight: 500;
             transition: all 0.2s;
-            color: #475569;
+            color: #a0a0ff;
             border-radius: 4px;
         }
         .job-type-filter button:hover {
-            background: #f1f5f9;
+            background: #303040;
         }
         .job-type-filter button.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
+            background: #05d9e8;
+            color: #00101a;
+            border-color: #05d9e8;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(5, 217, 232, 0.5);
         }
         .job.hidden {
             display: none;
         }
         /* New style for apply links */
         .job-apply {
-            background: #e0e7ff;
-            padding: 4px 10px;
+            background: rgba(255, 42, 109, 0.15);
+            padding: 5px 12px;
             border-radius: 4px;
             text-decoration: none;
-            color: #2563eb;
+            color: #ff2a6d;
             font-size: 0.8rem;
             white-space: nowrap;
             display: inline-flex;
             align-items: center;
             transition: all 0.2s;
-            font-weight: 500;
+            font-weight: 600;
+            border: 1px solid rgba(255, 42, 109, 0.3);
         }
         .job-apply:hover {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: rgba(255, 42, 109, 0.25);
+            text-shadow: 0 0 5px rgba(255, 42, 109, 0.5);
+            box-shadow: 0 0 8px rgba(255, 42, 109, 0.3);
         }
         .job-apply::before {
             content: "→";
@@ -203,7 +215,7 @@
         .loading {
             text-align: center;
             padding: 20px;
-            color: #64748b;
+            color: #7070a0;
         }
         .loading::after {
             content: "...";
@@ -214,11 +226,28 @@
             40% { content: ".."; }
             60%, 100% { content: "..."; }
         }
+        /* Neon glow effect */
+        .neon-text {
+            animation: flicker 1.5s infinite alternate;
+        }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow:
+                    0 0 4px #fff,
+                    0 0 8px #fff,
+                    0 0 12px #ff2a6d,
+                    0 0 16px #ff2a6d,
+                    0 0 20px #ff2a6d;
+            }
+            20%, 24%, 55% {        
+                text-shadow: none;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>MicroJobs.io</h1>
+        <h1 class="neon-text">MicroJobs.io</h1>
         <div class="subtitle">$1 job board · Full-time, freelance, and contract roles</div>
     </header>
 
@@ -253,11 +282,11 @@
         <div class="loading">Loading jobs</div>
     </div>
 
-    <button class="post-job" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfkvAWoYz5z0s1tFYr-_ps0RoeqEmVAXTygM0grypKyNbeRRw/viewform?usp=sharing&ouid=104569870959259447263', '_blank')">POST A JOB ($1)</button>
+    <button class="post-job">POST A JOB ($1)</button>
 
     <footer>
-        <p>Listings expire after 30 days · <a href="#" style="color: #3b82f6;">Terms</a></p>
-        <p>Want featured placement? <a href="#" style="color: #3b82f6;">Pay $5 to pin your job</a></p>
+        <p>Listings expire after 30 days · <a href="#" style="color: #05d9e8;">Terms</a></p>
+        <p>Want featured placement? <a href="#" style="color: #05d9e8;">Pay $5 to pin your job</a></p>
     </footer>
 
     <script>
@@ -443,7 +472,12 @@
     }
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', loadJobs);
+    document.addEventListener('DOMContentLoaded', function() {
+        loadJobs();
+        document.querySelector('.post-job').addEventListener('click', function() {
+            window.open('https://docs.google.com/forms/d/e/1FAIpQLSfkvAWoYz5z0s1tFYr-_ps0RoeqEmVAXTygM0grypKyNbeRRw/viewform?usp=sharing&ouid=104569870959259447263', '_blank');
+        });
+    });
     </script>
 </body>
 </html>
