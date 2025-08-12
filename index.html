@@ -106,6 +106,18 @@
         .job.hidden {
             display: none;
         }
+        /* New style for apply links */
+        .job a {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #4CAF50;
+            font-size: 0.8rem;
+        }
+        .job a:hover {
+            background: #e0e0e0;
+        }
     </style>
 </head>
 <body>
@@ -160,6 +172,20 @@
     let currentLocation = 'all';
     let currentJobType = 'all';
 
+    // Helper function to extract domain from URL
+    function extractDomain(url) {
+        try {
+            // Remove protocol and www
+            let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
+            // Remove everything after the first slash
+            domain = domain.split('/')[0];
+            // Shorten if too long
+            return domain.length > 20 ? domain.substring(0, 17) + '...' : domain;
+        } catch {
+            return 'link';
+        }
+    }
+
     // Fetch and display jobs
     fetch(sheetUrl)
         .then(response => response.text())
@@ -196,7 +222,9 @@
                              data-job-type="${jobType}">
                             <span class="job-type">${jobType.replace('-', ' ')}</span> 
                             ${title} | ${location} | 
-                            <a href="${cleanApplyLink}" target="_blank" rel="noopener">Apply</a>
+                            <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}">
+                                Apply (${extractDomain(cleanApplyLink)})
+                            </a>
                             <div class="job-meta">Posted ${formatDate(date)} · ${category}</div>
                         </div>
                     `;
