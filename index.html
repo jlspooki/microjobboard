@@ -146,6 +146,7 @@
             <div class="job-type-filter">
                 <button data-type="all" class="active">All</button>
                 <button data-type="full-time">FT</button>
+                <button data-type="part-time">PT</button>
                 <button data-type="freelance">FL</button>
                 <button data-type="contract">CT</button>
             </div>
@@ -200,6 +201,7 @@
                 if (row.length >= 7) { // Ensure row has all columns
                     const title = row[0] || "No title";
                     const location = row[1] || "Remote";
+                    const salary = row[2] || "Text";
                     const applyLink = row[3] || "#";
                     const date = row[4] || new Date().toISOString();
                     const category = row[5] || "Other";
