@@ -30,7 +30,7 @@
             padding: 15px;
             margin-bottom: 10px;
             border-left: 3px solid #4CAF50;
-            word-break: break-all;
+            word-break: break-word; /* Changed from break-all to break-word */
         }
         .job-type {
             font-size: 0.7rem;
@@ -43,6 +43,18 @@
             font-size: 0.8rem;
             color: #666;
             margin-top: 5px;
+        }
+        .job-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .job-company {
+            font-style: italic;
+            color: #555;
+        }
+        .job-salary {
+            color: #4CAF50;
+            font-weight: bold;
         }
         .post-job {
             background: #4CAF50;
@@ -114,6 +126,7 @@
             text-decoration: none;
             color: #4CAF50;
             font-size: 0.8rem;
+            white-space: nowrap;
         }
         .job a:hover {
             background: #e0e0e0;
@@ -180,8 +193,17 @@
             let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
             // Remove everything after the first slash
             domain = domain.split('/')[0];
-            // Shorten if too long
-            return domain.length > 20 ? domain.substring(0, 17) + '...' : domain;
+            // Shorten if too long (but keep TLD visible)
+            if (domain.length > 20) {
+                const parts = domain.split('.');
+                if (parts.length > 1) {
+                    const tld = parts.pop();
+                    const main = parts.join('.');
+                    return main.substring(0, 15) + '...' + tld;
+                }
+                return domain.substring(0, 17) + '...';
+            }
+            return domain;
         } catch {
             return 'link';
         }
@@ -198,14 +220,15 @@
             // Generate HTML for jobs and collect categories/locations
             let html = '';
             jobs.slice(1).forEach(row => {
-                if (row.length >= 7) { // Ensure row has all columns
+                if (row.length >= 8) { // Updated to check for 8 columns (added company)
                     const title = row[0] || "No title";
-                    const location = row[1] || "Remote";
-                    const salary = row[2] || "Text";
-                    const applyLink = row[3] || "#";
-                    const date = row[4] || new Date().toISOString();
-                    const category = row[5] || "Other";
-                    const jobType = (row[6] || "Full-time").toLowerCase().replace(' ', '-');
+                    const company = row[1] || ""; // New company field
+                    const location = row[2] || "Remote";
+                    const salary = row[3] || ""; // Updated salary position
+                    const applyLink = row[4] || "#";
+                    const date = row[5] || new Date().toISOString();
+                    const category = row[6] || "Other";
+                    const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
                     
                     // Add to sets for filters
                     categories.add(category);
@@ -222,11 +245,16 @@
                              data-category="${category.replace(/ /g, '-').toLowerCase()}" 
                              data-location="${location.replace(/ /g, '-').toLowerCase()}" 
                              data-job-type="${jobType}">
-                            <span class="job-type">${jobType.replace('-', ' ')}</span> 
-                            ${title} | ${location} | 
-                            <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}">
-                                Apply (${extractDomain(cleanApplyLink)})
-                            </a>
+                            <div class="job-title">${title}</div>
+                            ${company ? `<div class="job-company">${company}</div>` : ''}
+                            <div>
+                                <span class="job-type">${jobType.replace('-', ' ')}</span> 
+                                ${location} 
+                                ${salary ? `| <span class="job-salary">${salary}</span>` : ''}
+                                | <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}">
+                                    Apply (${extractDomain(cleanApplyLink)})
+                                </a>
+                            </div>
                             <div class="job-meta">Posted ${formatDate(date)} · ${category}</div>
                         </div>
                     `;
