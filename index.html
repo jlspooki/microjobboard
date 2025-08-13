@@ -99,7 +99,7 @@
             color: #c0c0ff;
             font-size: 0.9rem;
             line-height: 1.6;
-            white-space: pre-line;
+            white-space: pre-wrap;
             word-break: break-word;
             overflow-wrap: anywhere;
             max-width: 100%;
@@ -354,11 +354,10 @@
                         const category = row[6] || "Other";
                         const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
                         const requirements = (row[8] || "No requirements specified")
-                            .replace(/\\n/g, '\n')
-                            .replace(/\n/g, '<br>')
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;');
+                            .replace(/<br>/g, '\n')      // Convert <br> tags to newlines
+                            .replace(/\\n/g, '\n')       // Handle escaped newlines
+                            .replace(/&nbsp;/g, ' ')     // Convert non-breaking spaces to regular spaces
+                            .trim();                     // Remove any leading/trailing whitespace
                         
                         categories.add(category);
                         locations.add(location);
