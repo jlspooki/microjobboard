@@ -274,9 +274,9 @@
 
     <div class="filters">
         <div class="filter-group">
-            <label for="industries-filter">Industries</label>
-            <select id="industries-filter">
-                <option value="all">All Industries</option>
+            <label for="category-filter">Category</label>
+            <select id="category-filter">
+                <option value="all">All Categories</option>
             </select>
         </div>
         <div class="filter-group">
@@ -311,7 +311,7 @@
     <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4EVsy5DvH079ExNqMKimEr_sZujqk6sY8_82x0Z7JVv_P7yrcMPxL1naU1WZybsfRHjUBJyQbiw3y/pub?gid=1319885110&single=true&output=csv";
 
-    let currentIndustries = 'all';
+    let currentCategory = 'all';
     let currentLocation = 'all';
     let currentJobType = 'all';
 
@@ -351,7 +351,7 @@
                         const salary = row[3] || "";
                         const applyLink = row[4] || "#";
                         const date = row[5] || new Date().toISOString();
-                        const industries = row[6] || "Other";
+                        const category = row[6] || "Other";
                         const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
                         const requirements = (row[8] || "No requirements specified")
                             .replace(/<br>/g, '\n')      // Convert <br> tags to newlines
@@ -359,7 +359,7 @@
                             .replace(/&nbsp;/g, ' ')     // Convert non-breaking spaces to regular spaces
                             .trim();                     // Remove any leading/trailing whitespace
                         
-                        industries.add(industries);
+                        categories.add(category);
                         locations.add(location);
                         
                         let cleanApplyLink = applyLink.trim();
@@ -369,7 +369,7 @@
                         
                         html += `
                             <div class="job" 
-                                 data-industries="${industries.replace(/ /g, '-').toLowerCase()}" 
+                                 data-category="${category.replace(/ /g, '-').toLowerCase()}" 
                                  data-location="${location.replace(/ /g, '-').toLowerCase()}" 
                                  data-job-type="${jobType}">
                                 <div class="job-title">${title}</div>
@@ -380,7 +380,7 @@
                                     ${salary ? `<span class="job-salary">${salary}</span>` : ''}
                                 </div>
                                 <div class="job-meta">
-                                    <span>Posted ${formatDate(date)} · ${industries}</span>
+                                    <span>Posted ${formatDate(date)} · ${category}</span>
                                     <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}" class="job-apply">
                                         Apply (${extractDomain(cleanApplyLink)})
                                     </a>
@@ -403,12 +403,12 @@
                     });
                 });
 
-                const industriesSelect = document.getElementById('industries-filter');
-                Array.from(industries).sort().forEach(industries => {
+                const categorySelect = document.getElementById('category-filter');
+                Array.from(categories).sort().forEach(category => {
                     const option = document.createElement('option');
-                    option.value = industries.replace(/ /g, '-').toLowerCase();
-                    option.textContent = industries;
-                    industriesSelect.appendChild(option);
+                    option.value = category.replace(/ /g, '-').toLowerCase();
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
                 });
 
                 const locationSelect = document.getElementById('location-filter');
@@ -419,8 +419,8 @@
                     locationSelect.appendChild(option);
                 });
 
-                document.getElementById('industries-filter').addEventListener('change', (e) => {
-                    currentIndustries = e.target.value;
+                document.getElementById('category-filter').addEventListener('change', (e) => {
+                    currentCategory = e.target.value;
                     filterJobs();
                 });
 
@@ -449,14 +449,14 @@
 
     function filterJobs() {
         document.querySelectorAll('.job').forEach(job => {
-            const industriesMatch = currentIndustries === 'all' || 
-                                job.dataset.industries === currentIndustries;
+            const categoryMatch = currentCategory === 'all' || 
+                                job.dataset.category === currentCategory;
             const locationMatch = currentLocation === 'all' || 
                                 job.dataset.location === currentLocation;
             const jobTypeMatch = currentJobType === 'all' || 
                                job.dataset.jobType === currentJobType;
             
-            job.classList.toggle('hidden', !(industriesMatch && locationMatch && jobTypeMatch));
+            job.classList.toggle('hidden', !(categoryMatch && locationMatch && jobTypeMatch));
         });
     }
 
