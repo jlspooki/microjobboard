@@ -99,6 +99,10 @@
             color: #c0c0ff;
             font-size: 0.9rem;
             line-height: 1.6;
+            white-space: pre-wrap;       /* Preserves line breaks and formatting */
+            word-break: break-word;      /* Prevents horizontal overflow */
+            overflow: visible;           /* Shows all content */
+            max-height: none !important; /* Removes any height limits */
         }
         .job.expanded .job-requirements {
             display: block;
@@ -394,7 +398,7 @@
                                         Apply (${extractDomain(cleanApplyLink)})
                                     </a>
                                 </div>
-                                <div class="job-requirements">${requirements}</div>
+                                <div class="job-requirements">${requirements.replace(/\n/g, '<br>')}</div>
                             </div>
                         `;
                     }
