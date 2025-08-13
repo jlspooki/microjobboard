@@ -99,10 +99,10 @@
             color: #c0c0ff;
             font-size: 0.9rem;
             line-height: 1.6;
-            white-space: pre-wrap;       /* Preserves line breaks and formatting */
-            word-break: break-word;      /* Prevents horizontal overflow */
-            overflow: visible;           /* Shows all content */
-            max-height: none !important; /* Removes any height limits */
+            white-space: pre-line;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            max-width: 100%;
         }
         .job.expanded .job-requirements {
             display: block;
@@ -141,7 +141,6 @@
             padding-top: 20px;
             border-top: 1px solid #252535;
         }
-        /* Filter controls */
         .filters {
             display: flex;
             flex-wrap: wrap;
@@ -202,7 +201,6 @@
         .job.hidden {
             display: none;
         }
-        /* New style for apply links */
         .job-apply {
             background: rgba(255, 42, 109, 0.15);
             padding: 5px 12px;
@@ -227,7 +225,6 @@
             margin-right: 5px;
             font-size: 0.9rem;
         }
-        /* Responsive adjustments */
         @media (max-width: 500px) {
             .filters {
                 flex-direction: column;
@@ -237,7 +234,6 @@
                 font-size: 0.7rem;
             }
         }
-        /* Loading animation */
         .loading {
             text-align: center;
             padding: 20px;
@@ -252,7 +248,6 @@
             40% { content: ".."; }
             60%, 100% { content: "..."; }
         }
-        /* Neon glow effect */
         .neon-text {
             animation: flicker 1.5s infinite alternate;
         }
@@ -282,14 +277,12 @@
             <label for="category-filter">Category</label>
             <select id="category-filter">
                 <option value="all">All Categories</option>
-                <!-- Categories will be added dynamically -->
             </select>
         </div>
         <div class="filter-group">
             <label for="location-filter">Location</label>
             <select id="location-filter">
                 <option value="all">All Locations</option>
-                <!-- Locations will be added dynamically -->
             </select>
         </div>
         <div class="filter-group">
@@ -316,22 +309,16 @@
     </footer>
 
     <script>
-    // Replace with your published Google Sheets CSV URL
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4EVsy5DvH079ExNqMKimEr_sZujqk6sY8_82x0Z7JVv_P7yrcMPxL1naU1WZybsfRHjUBJyQbiw3y/pub?gid=1319885110&single=true&output=csv";
 
-    // Global variables to store filters
     let currentCategory = 'all';
     let currentLocation = 'all';
     let currentJobType = 'all';
 
-    // Helper function to extract domain from URL
     function extractDomain(url) {
         try {
-            // Remove protocol and www
             let domain = url.replace(/(https?:\/\/)?(www\.)?/, '');
-            // Remove everything after the first slash
             domain = domain.split('/')[0];
-            // Shorten if too long (but keep TLD visible)
             if (domain.length > 20) {
                 const parts = domain.split('.');
                 if (parts.length > 1) {
@@ -347,7 +334,6 @@
         }
     }
 
-    // Fetch and display jobs
     function loadJobs() {
         fetch(sheetUrl)
             .then(response => response.text())
@@ -356,10 +342,9 @@
                 const categories = new Set();
                 const locations = new Set();
                 
-                // Generate HTML for jobs and collect categories/locations
                 let html = '';
                 jobs.slice(1).forEach(row => {
-                    if (row.length >= 9) { // Now checking for 9 columns (added requirements)
+                    if (row.length >= 9) {
                         const title = row[0] || "No title";
                         const company = row[1] || "";
                         const location = row[2] || "Remote";
@@ -368,13 +353,16 @@
                         const date = row[5] || new Date().toISOString();
                         const category = row[6] || "Other";
                         const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
-                        const requirements = row[8] || "No requirements specified";
+                        const requirements = (row[8] || "No requirements specified")
+                            .replace(/\\n/g, '\n')
+                            .replace(/\n/g, '<br>')
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
                         
-                        // Add to sets for filters
                         categories.add(category);
                         locations.add(location);
                         
-                        // Force absolute URLs
                         let cleanApplyLink = applyLink.trim();
                         if (cleanApplyLink && !cleanApplyLink.startsWith('http')) {
                             cleanApplyLink = 'https://' + cleanApplyLink;
@@ -398,7 +386,7 @@
                                         Apply (${extractDomain(cleanApplyLink)})
                                     </a>
                                 </div>
-                                <div class="job-requirements">${requirements.replace(/\n/g, '<br>')}</div>
+                                <div class="job-requirements">${requirements}</div>
                             </div>
                         `;
                     }
@@ -406,10 +394,8 @@
                 
                 document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
 
-                // Add click handlers for job expansion
                 document.querySelectorAll('.job').forEach(job => {
                     job.addEventListener('click', (e) => {
-                        // Don't toggle if click was on the apply link
                         if (!e.target.classList.contains('job-apply') && 
                             !e.target.classList.contains('job-apply') && 
                             e.target.tagName !== 'A') {
@@ -418,7 +404,6 @@
                     });
                 });
 
-                // Populate category filter
                 const categorySelect = document.getElementById('category-filter');
                 Array.from(categories).sort().forEach(category => {
                     const option = document.createElement('option');
@@ -427,7 +412,6 @@
                     categorySelect.appendChild(option);
                 });
 
-                // Populate location filter
                 const locationSelect = document.getElementById('location-filter');
                 Array.from(locations).sort().forEach(location => {
                     const option = document.createElement('option');
@@ -436,7 +420,6 @@
                     locationSelect.appendChild(option);
                 });
 
-                // Add event listeners for filters
                 document.getElementById('category-filter').addEventListener('change', (e) => {
                     currentCategory = e.target.value;
                     filterJobs();
@@ -457,7 +440,6 @@
                     });
                 });
 
-                // Initial filter
                 filterJobs();
             })
             .catch(error => {
@@ -466,7 +448,6 @@
             });
     }
 
-    // Filter jobs based on current selections
     function filterJobs() {
         document.querySelectorAll('.job').forEach(job => {
             const categoryMatch = currentCategory === 'all' || 
@@ -480,38 +461,49 @@
         });
     }
 
-    // Parse CSV into array (handles quoted values)
     function parseCSV(csvData) {
-        const rows = csvData.split(/\r?\n/);
-        return rows.map(row => {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
+        const rows = [];
+        let currentRow = [];
+        let inQuotes = false;
+        let currentValue = '';
+        
+        for (let i = 0; i < csvData.length; i++) {
+            const char = csvData[i];
+            const nextChar = csvData[i + 1];
             
-            for (let char of row) {
-                if (char === '"' && !inQuotes) {
-                    inQuotes = true;
-                } else if (char === '"' && inQuotes) {
-                    inQuotes = false;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
+            if (char === '"' && !inQuotes) {
+                inQuotes = true;
+            } else if (char === '"' && inQuotes && nextChar === '"') {
+                currentValue += '"';
+                i++;
+            } else if (char === '"' && inQuotes) {
+                inQuotes = false;
+            } else if (char === ',' && !inQuotes) {
+                currentRow.push(currentValue.trim());
+                currentValue = '';
+            } else if (char === '\n' && !inQuotes) {
+                currentRow.push(currentValue.trim());
+                rows.push(currentRow);
+                currentRow = [];
+                currentValue = '';
+            } else {
+                currentValue += char;
             }
-            values.push(current.trim());
-            return values;
-        });
+        }
+        
+        if (currentValue.trim() || currentRow.length) {
+            currentRow.push(currentValue.trim());
+            rows.push(currentRow);
+        }
+        
+        return rows;
     }
 
-    // Format date (e.g., "2023-10-01" → "Oct 1, 2023")
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
-    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         loadJobs();
         document.querySelector('.post-job').addEventListener('click', function() {
