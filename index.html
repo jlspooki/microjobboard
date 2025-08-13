@@ -427,6 +427,41 @@
             background: #303040;
             border-color: #a0a0ff;
         }
+        
+        /* Job Badge Styles */
+        .job-badge {
+            position: absolute;
+            top: 15px;
+            right: 40px; /* Adjusted to not overlap with flag icon */
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            z-index: 1;
+        }
+        
+        .badge-new {
+            background: rgba(5, 217, 232, 0.15);
+            color: #05d9e8;
+        }
+        
+        .badge-featured {
+            background: rgba(255, 204, 0, 0.15);
+            color: #ffcc00;
+        }
+        
+        .badge-urgent {
+            background: rgba(255, 42, 109, 0.15);
+            color: #ff2a6d;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
     </style>
 </head>
 <body>
@@ -558,6 +593,25 @@
         }
     }
 
+    function getJobBadge(dateStr) {
+        try {
+            const postedDate = new Date(dateStr);
+            if (isNaN(postedDate.getTime())) return '';
+            
+            const currentDate = new Date();
+            const diffDays = Math.floor((currentDate - postedDate) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays <= 3) {
+                return '<div class="job-badge badge-urgent">🔥 New</div>';
+            } else if (diffDays <= 7) {
+                return '<div class="job-badge badge-new">🆕 Recent</div>';
+            }
+            return '';
+        } catch {
+            return '';
+        }
+    }
+
     function loadJobs() {
         fetch(sheetUrl)
             .then(response => response.text())
@@ -599,6 +653,7 @@
                                  data-category="${category.replace(/ /g, '-').toLowerCase()}" 
                                  data-location="${location.replace(/ /g, '-').toLowerCase()}" 
                                  data-job-type="${jobType}">
+                                ${getJobBadge(date)}
                                 <div class="job-flag" title="Report job">⚠️</div>
                                 <div class="job-title">${title}</div>
                                 ${company ? `<div class="job-company">${company}</div>` : ''}
@@ -625,6 +680,7 @@
                     job.addEventListener('click', (e) => {
                         if (!e.target.classList.contains('job-apply') && 
                             !e.target.classList.contains('job-flag') && 
+                            !e.target.classList.contains('job-badge') &&
                             e.target.tagName !== 'A') {
                             job.classList.toggle('expanded');
                         }
