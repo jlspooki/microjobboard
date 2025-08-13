@@ -264,6 +264,46 @@
                 text-shadow: none;
             }
         }
+        /* Floating Post Job Button */
+        #floating-post-job {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            opacity: 0.9;
+        }
+        .floating-post-button {
+            display: block;
+            background: #ff2a6d;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 42, 109, 0.4);
+            transition: all 0.3s ease;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .floating-post-button:hover {
+            background: #ff0a55;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 42, 109, 0.6);
+            opacity: 1;
+        }
+        @media (max-width: 400px) {
+            #floating-post-job {
+                bottom: 10px;
+                right: 10px;
+            }
+            .floating-post-button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -302,6 +342,15 @@
     </div>
 
     <button class="post-job">POST A JOB ($1)</button>
+
+    <!-- Floating Post Job Button -->
+    <div id="floating-post-job">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfkvAWoYz5z0s1tFYr-_ps0RoeqEmVAXTygM0grypKyNbeRRw/viewform?usp=sharing&ouid=104569870959259447263" 
+           target="_blank" 
+           class="floating-post-button">
+           POST JOB ($1)
+        </a>
+    </div>
 
     <footer>
         <p>Listings expire after 30 days · <a href="#" style="color: #05d9e8;">Terms</a></p>
@@ -354,10 +403,10 @@
                         const category = row[6] || "Other";
                         const jobType = (row[7] || "Full-time").toLowerCase().replace(' ', '-');
                         const requirements = (row[8] || "No requirements specified")
-                            .replace(/<br>/g, '\n')      // Convert <br> tags to newlines
-                            .replace(/\\n/g, '\n')       // Handle escaped newlines
-                            .replace(/&nbsp;/g, ' ')     // Convert non-breaking spaces to regular spaces
-                            .trim();                     // Remove any leading/trailing whitespace
+                            .replace(/<br>/g, '\n')
+                            .replace(/\\n/g, '\n')
+                            .replace(/&nbsp;/g, ' ')
+                            .trim();
                         
                         categories.add(category);
                         locations.add(location);
@@ -507,6 +556,16 @@
         loadJobs();
         document.querySelector('.post-job').addEventListener('click', function() {
             window.open('https://docs.google.com/forms/d/e/1FAIpQLSfkvAWoYz5z0s1tFYr-_ps0RoeqEmVAXTygM0grypKyNbeRRw/viewform?usp=sharing&ouid=104569870959259447263', '_blank');
+        });
+        
+        // Floating button scroll effect
+        window.addEventListener('scroll', function() {
+            const floatingBtn = document.getElementById('floating-post-job');
+            if (window.scrollY > 100) {
+                floatingBtn.style.opacity = '1';
+            } else {
+                floatingBtn.style.opacity = '0.9';
+            }
         });
     });
     </script>
