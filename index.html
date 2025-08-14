@@ -501,6 +501,17 @@
             50% { opacity: 1; }
             100% { opacity: 0.8; }
         }
+        
+        /* Email Application Tip */
+        .email-tip {
+            display: none;
+            background: #252535;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            border-left: 2px solid #05d9e8;
+        }
     </style>
 </head>
 <body>
@@ -663,7 +674,7 @@
                 
                 let html = '';
                 jobs.slice(1).forEach((row, index) => {
-                    if (row.length >= 9) {
+                    if (row.length >= 10) { // Updated to expect 10 columns now
                         const title = row[0] || "No title";
                         const company = row[1] || "";
                         const location = row[2] || "Remote";
@@ -677,6 +688,7 @@
                             .replace(/\\n/g, '\n')
                             .replace(/&nbsp;/g, ' ')
                             .trim();
+                        const posterEmail = row[9] || ""; // New column for poster email
                         
                         categories.add(category);
                         locations.add(location);
@@ -686,7 +698,7 @@
                             cleanApplyLink = 'https://' + cleanApplyLink;
                         }
                         
-                        const jobId = 'job-' + index; // Simple unique ID
+                        const jobId = 'job-' + index;
                         
                         html += `
                             <div class="job" 
@@ -705,7 +717,13 @@
                                 </div>
                                 <div class="job-meta">
                                     <span>Posted ${getDaysSincePosted(date)} · ${category}</span>
-                                    <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}" class="job-apply">
+                                    <a href="${cleanApplyLink}" 
+                                       target="_blank" 
+                                       rel="noopener" 
+                                       title="${cleanApplyLink}" 
+                                       class="job-apply"
+                                       data-job-title="${title}"
+                                       data-poster-email="${posterEmail}">
                                         Apply (${extractDomain(cleanApplyLink)})
                                     </a>
                                 </div>
@@ -717,6 +735,38 @@
                 
                 document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
 
+                // Enhanced apply button handling
+                document.querySelectorAll('.job-apply').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const jobTitle = this.dataset.jobTitle;
+                        const posterEmail = this.dataset.posterEmail;
+                        const originalLink = this.href;
+                        
+                        if (posterEmail) {
+                            // Try to open Gmail compose window
+                            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(posterEmail)}&su=${encodeURIComponent(`Application for ${jobTitle}`)}&body=${encodeURIComponent(`Dear Hiring Manager,\n\nI am applying for the ${jobTitle} position at your company. Please find my resume attached.\n\nBest regards,\n[Your Name]`)}`;
+                            
+                            const gmailWindow = window.open(gmailUrl, '_blank');
+                            
+                            // Fallback detection
+                            setTimeout(() => {
+                                if (!gmailWindow || gmailWindow.closed || typeof gmailWindow.closed === 'undefined') {
+                                    // Gmail didn't open, fall back to mailto
+                                    window.location.href = `mailto:${posterEmail}?subject=Application for ${encodeURIComponent(jobTitle)}&body=${encodeURIComponent(`Dear Hiring Manager,\n\nI am applying for the ${jobTitle} position. Please find my resume attached.\n\nBest regards,\n[Your Name]`)}`;
+                                }
+                            }, 500);
+                            
+                            // Still open original link in another tab
+                            window.open(originalLink, '_blank');
+                        } else {
+                            // No poster email, just open original link
+                            window.open(originalLink, '_blank');
+                        }
+                    });
+                });
+
+                // Rest of your existing job board code...
                 document.querySelectorAll('.job').forEach(job => {
                     job.addEventListener('click', (e) => {
                         if (!e.target.classList.contains('job-apply') && 
@@ -823,11 +873,6 @@
         return rows;
     }
 
-    function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
         loadJobs();
         document.querySelector('.post-job').addEventListener('click', function() {
@@ -869,7 +914,6 @@
             const details = document.getElementById('flagDetails').value;
             
             // Here you would normally send this to your backend
-            // For now we'll just log it and show a confirmation
             console.log('Job flagged:', {
                 jobId: currentFlaggedJobId,
                 reason: reason,
