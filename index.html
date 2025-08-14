@@ -501,16 +501,102 @@
             50% { opacity: 1; }
             100% { opacity: 0.8; }
         }
-        
-        /* Email Application Tip */
-        .email-tip {
+
+        /* Email Template Modal Styles */
+        .email-modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 15, 21, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .email-modal-content {
+            background: #1a1a25;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            border-top: 4px solid #05d9e8;
+            box-shadow: 0 0 20px rgba(5, 217, 232, 0.3);
+        }
+        
+        .email-modal h3 {
+            margin-top: 0;
+            color: #05d9e8;
+        }
+        
+        .email-modal p {
+            margin-bottom: 20px;
+            color: #a0a0ff;
+        }
+        
+        #emailTemplate {
+            width: 100%;
+            padding: 15px;
             background: #252535;
-            padding: 10px;
-            border-radius: 4px;
+            border: 1px solid #303040;
+            color: #e0e0ff;
+            border-radius: 6px;
+            min-height: 300px;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+        
+        .email-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .email-copy {
+            background: #05d9e8;
+            color: #00101a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.2s;
+        }
+        
+        .email-copy:hover {
+            background: #00f0ff;
+            box-shadow: 0 0 15px rgba(5, 217, 232, 0.4);
+        }
+        
+        .email-close {
+            background: #252535;
+            color: #a0a0ff;
+            border: 1px solid #303040;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            flex: 1;
+            transition: all 0.2s;
+        }
+        
+        .email-close:hover {
+            background: #303040;
+            border-color: #a0a0ff;
+        }
+        
+        .copy-success {
+            display: none;
+            color: #05d9e8;
+            text-align: center;
             margin-top: 10px;
-            font-size: 0.8rem;
-            border-left: 2px solid #05d9e8;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -599,6 +685,23 @@
         </div>
     </div>
 
+    <!-- Email Template Modal -->
+    <div class="email-modal" id="emailModal">
+        <div class="email-modal-content">
+            <h3>Email Application Template</h3>
+            <p>Copy this template to apply for the position. Personalize it before sending!</p>
+            
+            <textarea id="emailTemplate" readonly></textarea>
+            
+            <div class="email-actions">
+                <button class="email-copy" id="copyEmailBtn">Copy Template</button>
+                <button class="email-close" id="closeEmailBtn">Close</button>
+            </div>
+            
+            <div class="copy-success" id="copySuccess">Template copied to clipboard!</div>
+        </div>
+    </div>
+
     <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4EVsy5DvH079ExNqMKimEr_sZujqk6sY8_82x0Z7JVv_P7yrcMPxL1naU1WZybsfRHjUBJyQbiw3y/pub?gid=1319885110&single=true&output=csv";
 
@@ -606,6 +709,7 @@
     let currentLocation = 'all';
     let currentJobType = 'all';
     let currentFlaggedJobId = null;
+    let currentJobForEmail = null;
 
     function extractDomain(url) {
         try {
@@ -664,6 +768,50 @@
         }
     }
 
+    function generateEmailTemplate(job) {
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        // Use poster's email if available, otherwise generic "Hiring Manager"
+        const recipient = job.posterEmail ? job.posterEmail : 'Hiring Manager';
+        const subject = `Application for ${job.title} Position${job.company ? ` at ${job.company}` : ''}`;
+        
+        let template = `Subject: ${subject}\n\n`;
+        
+        if (job.posterEmail) {
+            template += `To: ${job.posterEmail}\n`;
+        }
+        
+        template += `Dear ${recipient.includes('@') ? '' : recipient}${recipient.includes('@') ? '' : ','}
+
+I am writing to express my interest in the ${job.title} position${job.company ? ` at ${job.company}` : ''}. 
+
+[Your personalized introduction - 1-2 sentences about why you're excited about this role and company]
+
+Here's why I believe I'd be a great fit for this role:
+- [Relevant skill/experience #1]
+- [Relevant skill/experience #2]
+- [Relevant skill/experience #3]
+
+[Optional: 1-2 sentences about a specific achievement or project that demonstrates your qualifications]
+
+I've attached my resume for your review. I would welcome the opportunity to discuss how my skills and experience align with your needs. Please feel free to contact me at [your phone number] or [your email] to schedule a conversation.
+
+Thank you for your time and consideration. I look forward to hearing from you.
+
+Best regards,
+[Your Full Name]
+[Your LinkedIn Profile or Portfolio URL]
+[Your Phone Number]`;
+
+        return template;
+    }
+
     function loadJobs() {
         fetch(sheetUrl)
             .then(response => response.text())
@@ -674,7 +822,7 @@
                 
                 let html = '';
                 jobs.slice(1).forEach((row, index) => {
-                    if (row.length >= 10) { // Updated to expect 10 columns now
+                    if (row.length >= 10) {  // Changed from 9 to 10 to include email
                         const title = row[0] || "No title";
                         const company = row[1] || "";
                         const location = row[2] || "Remote";
@@ -688,7 +836,7 @@
                             .replace(/\\n/g, '\n')
                             .replace(/&nbsp;/g, ' ')
                             .trim();
-                        const posterEmail = row[9] || ""; // New column for poster email
+                        const posterEmail = row[9] || "";  // New: Get poster's email
                         
                         categories.add(category);
                         locations.add(location);
@@ -698,14 +846,15 @@
                             cleanApplyLink = 'https://' + cleanApplyLink;
                         }
                         
-                        const jobId = 'job-' + index;
+                        const jobId = 'job-' + index; // Simple unique ID
                         
                         html += `
                             <div class="job" 
                                  data-job-id="${jobId}"
                                  data-category="${category.replace(/ /g, '-').toLowerCase()}" 
                                  data-location="${location.replace(/ /g, '-').toLowerCase()}" 
-                                 data-job-type="${jobType}">
+                                 data-job-type="${jobType}"
+                                 data-poster-email="${posterEmail}">
                                 ${getJobBadge(date)}
                                 <div class="job-flag" title="Report job">⚠️</div>
                                 <div class="job-title">${title}</div>
@@ -717,13 +866,7 @@
                                 </div>
                                 <div class="job-meta">
                                     <span>Posted ${getDaysSincePosted(date)} · ${category}</span>
-                                    <a href="${cleanApplyLink}" 
-                                       target="_blank" 
-                                       rel="noopener" 
-                                       title="${cleanApplyLink}" 
-                                       class="job-apply"
-                                       data-job-title="${title}"
-                                       data-poster-email="${posterEmail}">
+                                    <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}" class="job-apply">
                                         Apply (${extractDomain(cleanApplyLink)})
                                     </a>
                                 </div>
@@ -735,38 +878,6 @@
                 
                 document.getElementById('job-list').innerHTML = html || "<p>No jobs posted yet. Be the first!</p>";
 
-                // Enhanced apply button handling
-                document.querySelectorAll('.job-apply').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const jobTitle = this.dataset.jobTitle;
-                        const posterEmail = this.dataset.posterEmail;
-                        const originalLink = this.href;
-                        
-                        if (posterEmail) {
-                            // Try to open Gmail compose window
-                            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(posterEmail)}&su=${encodeURIComponent(`Application for ${jobTitle}`)}&body=${encodeURIComponent(`Dear Hiring Manager,\n\nI am applying for the ${jobTitle} position at your company. Please find my resume attached.\n\nBest regards,\n[Your Name]`)}`;
-                            
-                            const gmailWindow = window.open(gmailUrl, '_blank');
-                            
-                            // Fallback detection
-                            setTimeout(() => {
-                                if (!gmailWindow || gmailWindow.closed || typeof gmailWindow.closed === 'undefined') {
-                                    // Gmail didn't open, fall back to mailto
-                                    window.location.href = `mailto:${posterEmail}?subject=Application for ${encodeURIComponent(jobTitle)}&body=${encodeURIComponent(`Dear Hiring Manager,\n\nI am applying for the ${jobTitle} position. Please find my resume attached.\n\nBest regards,\n[Your Name]`)}`;
-                                }
-                            }, 500);
-                            
-                            // Still open original link in another tab
-                            window.open(originalLink, '_blank');
-                        } else {
-                            // No poster email, just open original link
-                            window.open(originalLink, '_blank');
-                        }
-                    });
-                });
-
-                // Rest of your existing job board code...
                 document.querySelectorAll('.job').forEach(job => {
                     job.addEventListener('click', (e) => {
                         if (!e.target.classList.contains('job-apply') && 
@@ -775,6 +886,27 @@
                             e.target.tagName !== 'A') {
                             job.classList.toggle('expanded');
                         }
+                    });
+                });
+
+                // Add click handler for apply buttons to show email template
+                document.querySelectorAll('.job-apply').forEach(applyBtn => {
+                    applyBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const jobElement = e.target.closest('.job');
+                        const jobData = {
+                            title: jobElement.querySelector('.job-title').textContent,
+                            company: jobElement.querySelector('.job-company')?.textContent || '',
+                            applyLink: e.target.href,
+                            posterEmail: jobElement.dataset.posterEmail || ''  // Add poster's email
+                        };
+                        
+                        currentJobForEmail = jobData;
+                        const emailTemplate = generateEmailTemplate(jobData);
+                        document.getElementById('emailTemplate').value = emailTemplate;
+                        document.getElementById('emailModal').style.display = 'flex';
                     });
                 });
 
@@ -873,6 +1005,11 @@
         return rows;
     }
 
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         loadJobs();
         document.querySelector('.post-job').addEventListener('click', function() {
@@ -914,6 +1051,7 @@
             const details = document.getElementById('flagDetails').value;
             
             // Here you would normally send this to your backend
+            // For now we'll just log it and show a confirmation
             console.log('Job flagged:', {
                 jobId: currentFlaggedJobId,
                 reason: reason,
@@ -935,6 +1073,29 @@
             document.querySelector('input[name="flag-reason"]:checked').checked = false;
             document.getElementById('flagDetails').value = '';
             document.getElementById('submitFlag').disabled = true;
+        });
+        
+        // Email template system
+        document.getElementById('closeEmailBtn').addEventListener('click', function() {
+            document.getElementById('emailModal').style.display = 'none';
+        });
+        
+        document.getElementById('copyEmailBtn').addEventListener('click', function() {
+            const emailTemplate = document.getElementById('emailTemplate');
+            emailTemplate.select();
+            document.execCommand('copy');
+            
+            // Show success message
+            const copySuccess = document.getElementById('copySuccess');
+            copySuccess.style.display = 'block';
+            setTimeout(() => {
+                copySuccess.style.display = 'none';
+            }, 2000);
+            
+            // Open the apply link in a new tab
+            if (currentJobForEmail && currentJobForEmail.applyLink) {
+                window.open(currentJobForEmail.applyLink, '_blank');
+            }
         });
     });
     </script>
