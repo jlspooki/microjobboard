@@ -507,9 +507,9 @@
             display: none;
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            left: 0,
+            right: 0,
+            bottom: 0,
             background: rgba(15, 15, 21, 0.95);
             z-index: 1000;
             align-items: center;
@@ -867,7 +867,7 @@ Best regards,
                                 <div class="job-meta">
                                     <span>Posted ${getDaysSincePosted(date)} · ${category}</span>
                                     <a href="${cleanApplyLink}" target="_blank" rel="noopener" title="${cleanApplyLink}" class="job-apply">
-                                        Apply (${extractDomain(cleanApplyLink)})
+                                        Apply
                                     </a>
                                 </div>
                                 <div class="job-requirements">${requirements}</div>
@@ -1092,10 +1092,7 @@ Best regards,
                 copySuccess.style.display = 'none';
             }, 2000);
             
-            // Open the apply link in a new tab
-            if (currentJobForEmail && currentJobForEmail.applyLink) {
-                window.open(currentJobForEmail.applyLink, '_blank');
-            }
+            // Removed the automatic redirect to apply link
         });
     });
     </script>
